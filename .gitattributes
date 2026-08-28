@@ -1,0 +1,10 @@
+# Everything in this repo is consumed inside a Linux container: the Dockerfile,
+# the firewall script, the compose files, the CI workflows. Force LF in the
+# working tree on every platform so a Windows checkout cannot smuggle CRLF into
+# an image. Without this, core.autocrlf=true rewrites files on checkout and a
+# shell script arrives as `bad interpreter: /bin/bash^M`.
+* text=auto eol=lf
+
+# Belt and braces for the scripts specifically. This line is also mandatory in
+# every consumer repo - see BLAST-CONTRACT.md.
+*.sh text eol=lf
