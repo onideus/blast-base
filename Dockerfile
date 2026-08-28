@@ -25,10 +25,9 @@ ARG BLAST_BASE_VERSION=dev
 ENV BLAST_BASE_VERSION="$BLAST_BASE_VERSION"
 
 # .source links the published package to this repo, which is what makes it
-# inherit the repo's access PERMISSIONS. Visibility is a separate setting: a
-# newly published package is private no matter what this label says, and is
-# flipped to public once, by hand. The link has to exist before the first
-# publish for permission inheritance to apply at all.
+# inherit the repo's access PERMISSIONS - and the link must exist before the
+# first publish for that to apply at all. Visibility is a separate setting from
+# permissions; see the README for what it actually did on first publish.
 LABEL org.opencontainers.image.source="https://github.com/onideus/blast-base" \
       org.opencontainers.image.description="Shared substrate image for blast containers: default-deny egress firewall, non-root user, named-volume Claude config." \
       org.opencontainers.image.licenses="MIT"

@@ -82,14 +82,20 @@ Both run in CI on every PR.
 Tag `v*` and `publish.yml` builds and pushes
 `ghcr.io/onideus/blast-base:{semver}`, `:{major.minor}`, and `:{sha}`.
 
-**One-time manual step:** after the first publish, set the ghcr package to public.
+**After the first publish, check the package is public.** It may already be.
 
-A package does **not** inherit visibility from its repository - the two are
-independent settings, and a newly published personal-scope package is private
-regardless of whether the repo is public. The
-`org.opencontainers.image.source` label earns the package the repo's access
-*permissions*, not its visibility, and only if the link exists before the first
-publish. So this flip is manual exactly once, and no repo setting removes it.
+Observed on the v0.1.0 publish: with `org.opencontainers.image.source` present
+before the first publish and "Inherit access from source repository" enabled, the
+package came out **public with no manual step**. GitHub's own documentation says a
+newly published personal-scope package defaults to private and that a package
+inherits a linked repository's access *permissions* but not its visibility - so
+that outcome is more generous than the docs describe, and is not something to
+lean on.
+
+Treat it as verify-then-fix rather than a guaranteed manual step: look at
+Package settings, and flip visibility only if it did not come out public.
+Permission inheritance is the part the label reliably buys, and it only applies
+if the link exists before the first publish.
 
 The package needs to be public for a reason beyond convenience: blast containers
 deliberately carry no credentials. If the base image were private, every consumer
