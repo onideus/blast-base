@@ -16,6 +16,14 @@
 ARG BLAST_BASE=ghcr.io/onideus/blast-base:0.1.0
 FROM ${BLAST_BASE}
 
+# The base declares ARG TZ too, but that arg was resolved when the base image
+# was built - a TZ passed to a CONSUMER build reaches this stage and is dropped
+# unless this stage declares it as well (buildkit warns that the arg was not
+# consumed). Declare and re-export it so the timezone actually lands in the
+# derived image; docker-compose.example.yml passes it as a build arg.
+ARG TZ
+ENV TZ="$TZ"
+
 # --- Consumer toolchain layer -----------------------------------------------
 # Everything your repo needs beyond Node goes here, as root. For example:
 #
