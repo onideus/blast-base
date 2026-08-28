@@ -1,0 +1,31 @@
+{
+  "name": "<repo> Blast Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "TZ": "${localEnv:TZ:America/New_York}"
+    }
+  },
+  "runArgs": [
+    "--cap-add=NET_ADMIN",
+    "--cap-add=NET_RAW",
+    "--add-host=host.docker.internal:host-gateway"
+  ],
+  "remoteUser": "node",
+  "mounts": [
+    "source=<repo>-claude-config,target=/home/node/.claude,type=volume",
+    "source=<repo>-bashhistory,target=/commandhistory,type=volume"
+  ],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=delegated",
+  "workspaceFolder": "/workspace",
+  "containerEnv": {
+    "CLAUDE_CONFIG_DIR": "/home/node/.claude",
+    "BLAST_REQUIRED_DOMAINS": "",
+    "BLAST_OPTIONAL_DOMAINS": "sentry.io statsig.anthropic.com statsig.com",
+    "BLAST_ALLOW_GITHUB": "true",
+    "BLAST_ALLOW_HOST_NETWORK": "true"
+  },
+  "postCreateCommand": "git config --global --add safe.directory /workspace",
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "waitFor": "postStartCommand"
+}

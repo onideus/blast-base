@@ -1,0 +1,65 @@
+# Example consumer .devcontainer/docker-compose.yml (compose mode).
+#
+# Compose mode is for a consumer that needs a sidecar service - a database, a
+# cache - brought up as part of devcontainer init. The sidecar is declared HERE,
+# in the same file as the blast service, so it falls under the same
+# non-editable rule as the rest of .devcontainer/.
+#
+# What runArgs carries in single-container mode lives on the blast service here:
+# cap_add, extra_hosts, the two named volumes, and the /workspace bind.
+
+services:
+  blast:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        TZ: ${TZ:-America/New_York}
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # The compose file lives in .devcontainer/, so the repo root is one up.
+      - ..:/workspace:cached
+      - repo-claude-config:/home/node/.claude
+      - repo-bashhistory:/commandhistory
+    environment:
+      CLAUDE_CONFIG_DIR: /home/node/.claude
+      # The sidecar is reached by compose service name. Add that name to the
+      # required list: init-firewall.sh resolves it through Docker's embedded
+      # DNS (127.0.0.11, whose nat rules the script preserves across the flush)
+      # and the resolved container IP lands in the ipset like any other
+      # required domain. A name that does not resolve aborts the firewall,
+      # which is the behaviour you want - a silently unreachable database is
+      # worse than a container that refuses to come up.
+      BLAST_REQUIRED_DOMAINS: "db"
+      BLAST_OPTIONAL_DOMAINS: "sentry.io statsig.anthropic.com statsig.com"
+      BLAST_ALLOW_GITHUB: "true"
+      BLAST_ALLOW_HOST_NETWORK: "true"
+    command: sleep infinity
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Sidecar: state on tmpfs, NO host ports published, reachable only by service
+  # name from inside the compose network. Nothing about it is exposed to the host.
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: app
+      PGDATA: /var/lib/postgresql/data
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  repo-claude-config:
+  repo-bashhistory:

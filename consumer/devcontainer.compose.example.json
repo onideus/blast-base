@@ -1,0 +1,13 @@
+{
+  "name": "<repo> Blast Container (compose)",
+  "dockerComposeFile": [
+    "docker-compose.yml"
+  ],
+  "service": "blast",
+  "workspaceFolder": "/workspace",
+  "shutdownAction": "stopCompose",
+  "remoteUser": "node",
+  "postCreateCommand": "git config --global --add safe.directory /workspace",
+  "postStartCommand": "sudo /usr/local/bin/init-firewall.sh",
+  "waitFor": "postStartCommand"
+}

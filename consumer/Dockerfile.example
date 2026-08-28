@@ -1,0 +1,33 @@
+# Example consumer .devcontainer/Dockerfile.
+#
+# Copy this into your repo as .devcontainer/Dockerfile and add your toolchain.
+#
+# BLAST_BASE is a build arg so you can build against a local image before a tag
+# is published, or when offline:
+#
+#     # in a blast-base checkout
+#     docker build -t blast-base:local .
+#     # in the consumer
+#     docker build --build-arg BLAST_BASE=blast-base:local .devcontainer
+#
+# For normal use, pin a real tag. Never :latest - the whole point of the
+# non-editable boundary is that it moves only when a human bumps this pin in a
+# reviewed PR.
+ARG BLAST_BASE=ghcr.io/onideus/blast-base:0.1.0
+FROM ${BLAST_BASE}
+
+# --- Consumer toolchain layer -----------------------------------------------
+# Everything your repo needs beyond Node goes here, as root. For example:
+#
+#   USER root
+#   RUN apt-get update && apt-get install -y --no-install-recommends \
+#         python3 python3-venv \
+#       && apt-get clean && rm -rf /var/lib/apt/lists/*
+#
+# Keep this layer to the toolchain. Do not touch the firewall script, the
+# sudoers rule, or node's ownership of /workspace and /home/node/.claude -
+# those are the boundary, and they are the base image's job.
+
+# Drop back to the unprivileged user. The base already sets this, but a
+# toolchain layer that switches to root must switch back explicitly.
+USER node
