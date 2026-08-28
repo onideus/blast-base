@@ -43,6 +43,15 @@ if ! echo "$out" | grep -q "blast firewall configuration"; then
 fi
 pass "configuration banner emitted"
 
+# Each banner field must be a single space-separated line. "${arr[*]}" joins on
+# the first character of IFS, which is a newline in this script - when that is
+# wrong the domain lists wrap and the banner stops being readable at a glance.
+if ! echo "$out" | grep -q "required domains    : api.anthropic.com registry.npmjs.org"; then
+    echo "$out"
+    fail "required-domains banner is not a single space-separated line"
+fi
+pass "banner renders each domain list on one line"
+
 # DEFECT 1: a second run must not deadlock against the DROP policy left behind
 # by the first. Before the fix this hung until the DNS and curl timeouts.
 if ! out2=$(timeout 120 sudo /usr/local/bin/init-firewall.sh 2>&1); then

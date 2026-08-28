@@ -48,6 +48,14 @@ split_tokens() {
     echo "${1:-}" | tr -s ' \t\n' '\n' | sed '/^$/d'
 }
 
+# "${arr[*]}" joins on the first character of IFS, which is a newline here - that
+# turns the banner below into a ragged multi-line block. Force a space so each
+# field stays on one line and reads as a list.
+join_spaces() {
+    local IFS=' '
+    echo "$*"
+}
+
 # An environment variable is an injection surface: these tokens are interpolated
 # into dig and ipset calls, so anything outside the hostname alphabet is fatal.
 validate_domain() {
@@ -83,9 +91,9 @@ done < <(split_tokens "$BLAST_OPTIONAL_DOMAINS")
 # out of the postStart output, without reverse-engineering it from devcontainer.json.
 echo "=== blast firewall configuration ==="
 echo "  image version       : ${BLAST_BASE_VERSION:-unknown}"
-echo "  required domains    : ${REQUIRED_DOMAINS[*]}"
+echo "  required domains    : $(join_spaces "${REQUIRED_DOMAINS[@]}")"
 if [ ${#OPTIONAL_DOMAINS[@]} -gt 0 ]; then
-    echo "  optional domains    : ${OPTIONAL_DOMAINS[*]}"
+    echo "  optional domains    : $(join_spaces "${OPTIONAL_DOMAINS[@]}")"
 else
     echo "  optional domains    : (none)"
 fi
