@@ -1,0 +1,33 @@
+# Compose fixture for test/smoke-compose.sh.
+#
+# Mirrors consumer/docker-compose.example.yml in the ways that matter: caps on
+# the blast service, a sidecar with no published host ports and state on tmpfs,
+# and the sidecar service name declared as a required domain.
+
+services:
+  blast:
+    image: ${BLAST_TEST_IMAGE:-blast-base:test}
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    environment:
+      BLAST_REQUIRED_DOMAINS: "sidecar"
+    command: sleep infinity
+    depends_on:
+      sidecar:
+        condition: service_healthy
+
+  sidecar:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: smoke
+      PGDATA: /var/lib/postgresql/data
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20

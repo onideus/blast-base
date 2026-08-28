@@ -1,0 +1,24 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      # ubuntu-latest permits --cap-add in `docker run`, which is what the
+      # firewall assertions need. Both scripts build the image themselves.
+      - name: Firewall smoke
+        run: ./test/smoke.sh
+
+      - name: Sidecar-through-firewall smoke
+        run: ./test/smoke-compose.sh
