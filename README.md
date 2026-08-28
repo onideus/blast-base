@@ -83,8 +83,18 @@ Tag `v*` and `publish.yml` builds and pushes
 `ghcr.io/onideus/blast-base:{semver}`, `:{major.minor}`, and `:{sha}`.
 
 **One-time manual step:** after the first publish, set the ghcr package to public.
-The `org.opencontainers.image.source` label links the package to this repo so it
-can inherit visibility, but the first flip is manual.
+
+A package does **not** inherit visibility from its repository - the two are
+independent settings, and a newly published personal-scope package is private
+regardless of whether the repo is public. The
+`org.opencontainers.image.source` label earns the package the repo's access
+*permissions*, not its visibility, and only if the link exists before the first
+publish. So this flip is manual exactly once, and no repo setting removes it.
+
+The package needs to be public for a reason beyond convenience: blast containers
+deliberately carry no credentials. If the base image were private, every consumer
+would need registry credentials present at devcontainer build time - inside a
+design whose whole point is that no credentials live there.
 
 ## License
 
