@@ -22,3 +22,19 @@ jobs:
 
       - name: Sidecar-through-firewall smoke
         run: ./test/smoke-compose.sh
+
+  # publish.yml ships a linux/arm64 image alongside amd64. This job runs the
+  # same assertions on GitHub's native arm64 runner, so the arm64 image gets the
+  # firewall proven on real hardware. Building it under QEMU in publish is fine;
+  # trusting iptables under QEMU is not, which is why this is a separate native
+  # leg rather than an emulated build check.
+  smoke-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+
+      - name: Firewall smoke
+        run: ./test/smoke.sh
+
+      - name: Sidecar-through-firewall smoke
+        run: ./test/smoke-compose.sh
