@@ -75,7 +75,9 @@ test/smoke.sh          # build, firewall assertions, idempotency, fail-closed
 test/smoke-compose.sh  # sidecar-through-firewall proof
 ```
 
-Both run in CI on every PR.
+Both run in CI on every PR, once on the amd64 runner and once on GitHub's native
+arm64 runner, so each published architecture gets the firewall assertions on
+real hardware rather than under emulation.
 
 ## Releasing
 
