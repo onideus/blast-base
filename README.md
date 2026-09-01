@@ -80,7 +80,15 @@ Both run in CI on every PR.
 ## Releasing
 
 Tag `v*` and `publish.yml` builds and pushes
-`ghcr.io/onideus/blast-base:{semver}`, `:{major.minor}`, and `:{sha}`.
+`ghcr.io/onideus/blast-base:{semver}`, `:{major.minor}`, and `:{sha}`. Each tag
+is a manifest list covering `linux/amd64` and `linux/arm64`, so an Apple Silicon
+Mac or an arm64 server pulls a native image. The arm64 leg is built under QEMU
+on the amd64 runner; the Dockerfile is arch-neutral, so that is slow rather than
+fragile.
+
+`v0.1.0` predates the multi-arch build and is amd64-only. An arm64 host on that
+tag runs the image under emulation - see the platform notes in
+[BLAST-CONTRACT.md](BLAST-CONTRACT.md).
 
 **After the first publish, check the package is public.** It may already be.
 

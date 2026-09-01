@@ -116,3 +116,12 @@ in `.gitattributes` is mandatory - CRLF endings produce
 services bound to `127.0.0.1`. On a plain Linux engine it does **not** - the host
 service must bind `0.0.0.0` or the bridge IP. Knowing this saves you chasing a
 phantom firewall bug.
+
+**Apple Silicon and other arm64 hosts.** Tags published after `v0.1.0` are
+manifest lists with a native `linux/arm64` image, and Docker selects it without
+being asked. `v0.1.0` itself is amd64-only: Docker Desktop runs it under
+emulation with a platform-mismatch warning, `npm ci` and the test suite inside
+crawl, and the firewall's iptables path under emulation is not something the
+smoke tests cover. Pin a later tag on arm64 hosts. If you must stay on `v0.1.0`,
+build the base locally from that tag and hand the image name to the consumer
+`Dockerfile` through its `BLAST_BASE` build arg - that arg exists for this.
